@@ -30,9 +30,15 @@ importers:
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.2
+      '@types/semver':
+        specifier: ^7.7.1
+        version: 7.7.1
       pino:
         specifier: ^10.1.0
         version: 10.1.0
+      semver:
+        specifier: ^7.7.3
+        version: 7.7.3
       tsdown:
         specifier: ^0.16.8
         version: 0.16.8(typescript@5.9.3)
@@ -774,6 +780,9 @@ packages:
 
   '@types/node@24.10.2':
     resolution: {integrity: sha512-WOhQTZ4G8xZ1tjJTvKOpyEVSGgOTvJAfDK3FNFgELyaTpzhdgHVHeqW8V+UJvzF5BT+/B54T/1S2K6gd9c7bbA==}
+
+  '@types/semver@7.7.1':
+    resolution: {integrity: sha512-FmgJfu+MOcQ370SD0ev7EI8TlCAfKYU+B4m5T3yXc1CiRN94g/SZPtsCkk506aUDtlMnFZvasDwHHUcZUEaYuA==}
 
   '@vitest/expect@4.0.15':
     resolution: {integrity: sha512-Gfyva9/GxPAWXIWjyGDli9O+waHDC0Q0jaLdFP1qPAUUfo1FEXPXUfUkp3eZA0sSq340vPycSyOlYUeM15Ft1w==}
@@ -1655,6 +1664,8 @@ snapshots:
   '@types/node@24.10.2':
     dependencies:
       undici-types: 7.16.0
+
+  '@types/semver@7.7.1': {}
 
   '@vitest/expect@4.0.15':
     dependencies:
