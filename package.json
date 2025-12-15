@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.5",
-    "@nillion/nuc": "link:../nuc-ts",
+    "@nillion/nuc": "2.0.0-rc.0",
     "@types/node": "^24.10.1",
     "@types/semver": "^7.7.1",
     "pino": "^10.1.0",
