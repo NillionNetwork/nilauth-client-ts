@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => ({
     testTimeout: 0,
     env: loadEnv(mode, process.cwd(), ""),
     coverage: {
+      include: ["src/**/*.ts"],
       reporter: ["text", "json-summary", "json"],
       reportOnFailure: true,
     },
