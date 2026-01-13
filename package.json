@@ -28,34 +28,34 @@
   },
   "dependencies": {
     "@noble/hashes": "^2.0.1",
-    "canonicalize": "^2.0.0",
-    "ky": "^1.14.0",
-    "zod": "^4.1.13"
+    "canonicalize": "^2.1.0",
+    "ky": "^1.14.2",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.2.0",
-    "@commitlint/config-conventional": "^20.2.0",
-    "@commitlint/types": "^20.2.0",
+    "@commitlint/cli": "^20.3.1",
+    "@commitlint/config-conventional": "^20.3.1",
+    "@commitlint/types": "^20.3.1",
     "@nillion/nuc": "2.0.0-rc.0",
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.0.7",
     "@types/semver": "^7.7.1",
     "@typescript/native-preview": "7.0.0-dev.20260113.1",
-    "@vitest/coverage-v8": "^4.0.15",
-    "lefthook": "^2.0.8",
-    "oxfmt": "^0.23.0",
-    "oxlint": "^1.38.0",
-    "oxlint-tsgolint": "^0.10.1",
-    "pino": "^10.1.0",
+    "@vitest/coverage-v8": "^4.0.17",
+    "lefthook": "^2.0.14",
+    "oxfmt": "^0.24.0",
+    "oxlint": "^1.39.0",
+    "oxlint-tsgolint": "^0.11.0",
+    "pino": "^10.1.1",
     "semver": "^7.7.3",
-    "tsdown": "^0.16.8",
+    "tsdown": "0.20.0-beta.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vite": "^7.2.6",
-    "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.15"
+    "vite": "^7.3.1",
+    "vite-tsconfig-paths": "^6.0.4",
+    "vitest": "^4.0.17"
   },
   "peerDependencies": {
-    "@nillion/nuc": "^2.0.0-rc.0",
+    "@nillion/nuc": "^2.0.0",
     "pino": "^10.1.0"
   },
   "tsdown": {
