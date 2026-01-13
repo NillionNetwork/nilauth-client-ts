@@ -42,6 +42,6 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - uses: pnpm/action-setup@v4
       - run: pnpm install
-      - run: pnpm build
       - run: pnpm check
-      - run: npm publish --tag ${{ needs.check-version.outputs.tag }}
+      - run: pnpm build
+      - run: pnpm publish --provenance --access public
