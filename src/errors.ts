@@ -30,9 +30,7 @@ export const NilauthErrorResponseBodySchema = z.object({
   message: z.string(),
   error_code: NilauthErrorCodeSchema,
 });
-export type NilauthErrorResponseBody = z.infer<
-  typeof NilauthErrorResponseBodySchema
->;
+export type NilauthErrorResponseBody = z.infer<typeof NilauthErrorResponseBodySchema>;
 
 export class NilauthErrorResponse extends Error {
   public readonly _tag = "NilauthErrorResponse";

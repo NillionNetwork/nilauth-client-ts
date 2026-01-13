@@ -1,22 +1,5 @@
-import {
-  Builder,
-  Codec,
-  Did,
-  Envelope,
-  Payload,
-  type Signer,
-} from "@nillion/nuc";
-import { sha256 } from "@noble/hashes/sha2.js";
-import { bytesToHex, randomBytes } from "@noble/hashes/utils.js";
-import canonicalize from "canonicalize";
-import ky, { HTTPError, type Options } from "ky";
-import { z } from "zod";
 import { ONE_MINUTE_MS } from "#/constants";
-import {
-  NilauthErrorResponse,
-  NilauthErrorResponseBodySchema,
-  NilauthUnreachable,
-} from "#/errors";
+import { NilauthErrorResponse, NilauthErrorResponseBodySchema, NilauthUnreachable } from "#/errors";
 import { Log } from "#/logger";
 import {
   type CreateTokenResponse,
@@ -34,6 +17,13 @@ import {
   ValidatePaymentResponseSchema,
 } from "#/types";
 import { NilauthUrl } from "#/urls";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { bytesToHex, randomBytes } from "@noble/hashes/utils.js";
+import canonicalize from "canonicalize";
+import ky, { HTTPError, type Options } from "ky";
+import { z } from "zod";
+
+import { Builder, Codec, Did, Envelope, Payload, type Signer } from "@nillion/nuc";
 
 export type BlindModule = "nilai" | "nildb";
 
@@ -41,19 +31,13 @@ export type BlindModule = "nilai" | "nildb";
  * Performs a request and handles standardized logging, parsing, and error handling.
  * @internal
  */
-async function performRequest<T>(
-  url: string,
-  schema: z.ZodType<T>,
-  options: Options = {},
-): Promise<T> {
+async function performRequest<T>(url: string, schema: z.ZodType<T>, options: Options = {}): Promise<T> {
   const method = options.method?.toUpperCase() || "GET";
   Log.debug(`Request started: method=${method} url=${url}`);
 
   try {
     const response = await ky(url, options);
-    const body = response.headers
-      .get("content-type")
-      ?.includes("application/json")
+    const body = response.headers.get("content-type")?.includes("application/json")
       ? await response.json()
       : await response.text();
 
@@ -61,7 +45,7 @@ async function performRequest<T>(
     Log.debug(`Request succeeded: method=${method} url=${url}`);
     return result;
   } catch (error) {
-    Log.error(`Request failed: method=${method} url=${url} error=${error}`);
+    Log.error(`Request failed: method=${method} url=${url} error=${String(error)}`);
 
     if (error instanceof z.ZodError) {
       throw error;
@@ -71,14 +55,8 @@ async function performRequest<T>(
       try {
         const errorBody = await error.response.json();
         const parsedError = NilauthErrorResponseBodySchema.parse(errorBody);
-        throw new NilauthErrorResponse(
-          url,
-          parsedError.error_code,
-          parsedError.message,
-          error.response.status,
-          error,
-        );
-      } catch (_error) {
+        throw new NilauthErrorResponse(url, parsedError.error_code, parsedError.message, error.response.status, error);
+      } catch {
         // allow fall through to nilauth unreachable
       }
     }
@@ -157,10 +135,7 @@ export class NilauthClient {
    * Creates a self-signed identity NUC for authenticating a request.
    * @internal
    */
-  private async createIdentityNuc(
-    signer: Signer,
-    command: string,
-  ): Promise<string> {
+  private async createIdentityNuc(signer: Signer, command: string): Promise<string> {
     const subject = await signer.getDid();
     return Builder.invocation()
       .subject(subject)
@@ -209,14 +184,10 @@ export class NilauthClient {
    * @throws {NilauthErrorResponse} If the service returns an error
    * @throws {NilauthUnreachable} If the service cannot be reached
    */
-  findRevocationsInProofChain(
-    token: Envelope,
-  ): Promise<LookupRevokedTokenResponse> {
+  findRevocationsInProofChain(token: Envelope): Promise<LookupRevokedTokenResponse> {
     const url = NilauthUrl.nucs.findRevocations(this.nilauthBaseUrl);
     const json = {
-      hashes: [token.nuc, ...token.proofs].map((t) =>
-        bytesToHex(Envelope.computeHash(t)),
-      ),
+      hashes: [token.nuc, ...token.proofs].map((t) => bytesToHex(Envelope.computeHash(t))),
     };
     return performRequest(url, LookupRevokedTokenResponseSchema, {
       method: "POST",
@@ -230,9 +201,7 @@ export class NilauthClient {
    * @returns The cost information for the subscription
    * @throws {NilauthErrorResponse} If the service returns an error
    */
-  subscriptionCost(
-    blindModule: BlindModule,
-  ): Promise<SubscriptionCostResponse> {
+  subscriptionCost(blindModule: BlindModule): Promise<SubscriptionCostResponse> {
     const url = NilauthUrl.payments.cost(this.nilauthBaseUrl, blindModule);
     return performRequest(url, SubscriptionCostResponseSchema);
   }
@@ -244,15 +213,8 @@ export class NilauthClient {
    * @returns Subscription status information
    * @throws {NilauthErrorResponse} If an unexpected error occurs
    */
-  async subscriptionStatus(
-    did: Did,
-    blindModule: BlindModule,
-  ): Promise<SubscriptionStatusResponse> {
-    const url = NilauthUrl.subscriptions.status(
-      this.nilauthBaseUrl,
-      Did.serialize(did),
-      blindModule,
-    );
+  async subscriptionStatus(did: Did, blindModule: BlindModule): Promise<SubscriptionStatusResponse> {
+    const url = NilauthUrl.subscriptions.status(this.nilauthBaseUrl, Did.serialize(did), blindModule);
     return performRequest(url, SubscriptionStatusResponseSchema);
   }
 
@@ -286,11 +248,7 @@ export class NilauthClient {
       throw new Error("Failed to canonicalize payment payload");
     }
     const resourceHash = sha256(new TextEncoder().encode(payloadStr));
-    Log.debug(
-      `Created payment resource with payload=${payloadStr}, digest=${bytesToHex(
-        resourceHash,
-      )}`,
-    );
+    Log.debug(`Created payment resource with payload=${payloadStr}, digest=${bytesToHex(resourceHash)}`);
 
     return { resourceHash, payload };
   }
@@ -303,15 +261,8 @@ export class NilauthClient {
    * @param payerSigner - The signer of the identity that paid for the subscription.
    * @throws {NilauthErrorResponse} If payment validation fails.
    */
-  async validatePayment(
-    txHash: string,
-    payload: object,
-    payerSigner: Signer,
-  ): Promise<void> {
-    const identityNuc = await this.createIdentityNuc(
-      payerSigner,
-      "/nil/auth/payments/validate",
-    );
+  async validatePayment(txHash: string, payload: object, payerSigner: Signer): Promise<void> {
+    const identityNuc = await this.createIdentityNuc(payerSigner, "/nil/auth/payments/validate");
 
     const url = NilauthUrl.payments.validate(this.nilauthBaseUrl);
     const json = {
@@ -343,14 +294,8 @@ export class NilauthClient {
    * @returns The created token response.
    * @throws {NilauthErrorResponse} If token creation fails (e.g., no active subscription).
    */
-  async requestToken(
-    subscriberSigner: Signer,
-    blindModule: BlindModule,
-  ): Promise<CreateTokenResponse> {
-    const identityNuc = await this.createIdentityNuc(
-      subscriberSigner,
-      "/nil/auth/nucs/create",
-    );
+  async requestToken(subscriberSigner: Signer, blindModule: BlindModule): Promise<CreateTokenResponse> {
+    const identityNuc = await this.createIdentityNuc(subscriberSigner, "/nil/auth/nucs/create");
 
     const url = NilauthUrl.nucs.create(this.nilauthBaseUrl);
     const json = { blind_module: blindModule };
@@ -375,11 +320,7 @@ export class NilauthClient {
    * @param config.tokenToRevoke - The token to revoke
    * @throws {NilauthErrorResponse} If revocation fails
    */
-  async revokeToken(config: {
-    signer: Signer;
-    authToken: Envelope;
-    tokenToRevoke: Envelope;
-  }): Promise<void> {
+  async revokeToken(config: { signer: Signer; authToken: Envelope; tokenToRevoke: Envelope }): Promise<void> {
     const { signer, authToken, tokenToRevoke } = config;
 
     const issuer = await signer.getDid();

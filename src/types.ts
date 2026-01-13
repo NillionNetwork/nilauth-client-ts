@@ -1,5 +1,6 @@
-import { Codec } from "@nillion/nuc";
 import { z } from "zod";
+
+import { Codec } from "@nillion/nuc";
 
 export type SignedRequest = {
   public_key: string;
@@ -34,18 +35,14 @@ export const NilauthAboutResponseSchema = z
 export type NilauthAboutResponse = z.output<typeof NilauthAboutResponseSchema>;
 
 export const ValidatePaymentResponseSchema = z.null().transform(() => {});
-export type ValidatePaymentResponse = z.infer<
-  typeof ValidatePaymentResponseSchema
->;
+export type ValidatePaymentResponse = z.infer<typeof ValidatePaymentResponseSchema>;
 
 export const SubscriptionCostResponseSchema = z
   .object({
     cost_unils: z.number(),
   })
   .transform(({ cost_unils }) => cost_unils);
-export type SubscriptionCostResponse = z.output<
-  typeof SubscriptionCostResponseSchema
->;
+export type SubscriptionCostResponse = z.output<typeof SubscriptionCostResponseSchema>;
 
 export const SubscriptionDetailsSchema = z
   .object({
@@ -62,9 +59,7 @@ export const SubscriptionStatusResponseSchema = z.object({
   subscribed: z.boolean(),
   details: SubscriptionDetailsSchema.nullable(),
 });
-export type SubscriptionStatusResponse = z.infer<
-  typeof SubscriptionStatusResponseSchema
->;
+export type SubscriptionStatusResponse = z.infer<typeof SubscriptionStatusResponseSchema>;
 
 export const CreateTokenResponseSchema = z.object({
   token: z.string().transform(Codec._unsafeDecodeBase64Url),
@@ -85,6 +80,4 @@ export type RevokedToken = z.output<typeof RevokedTokenSchema>;
 export const LookupRevokedTokenResponseSchema = z.object({
   revoked: z.array(RevokedTokenSchema),
 });
-export type LookupRevokedTokenResponse = z.infer<
-  typeof LookupRevokedTokenResponseSchema
->;
+export type LookupRevokedTokenResponse = z.infer<typeof LookupRevokedTokenResponseSchema>;

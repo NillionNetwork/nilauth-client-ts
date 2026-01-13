@@ -2,7 +2,7 @@ name: CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 concurrency:
@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  id-token: write  # Required for NPM Trusted Publisher
+  id-token: write # Required for NPM Trusted Publisher
   contents: read
 
 jobs:
@@ -42,7 +42,6 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - uses: pnpm/action-setup@v4
       - run: pnpm install
+      - run: pnpm check
       - run: pnpm build
-      - run: pnpm exec biome ci
-      - run: tsc
-      - run: npm publish --tag ${{ needs.check-version.outputs.tag }}
+      - run: pnpm publish --provenance --access public
