@@ -12,12 +12,7 @@ export {
 } from "#/errors";
 // Logger
 export type { LogLevel } from "#/logger";
-export {
-  clearStoredLogLevel,
-  getLogLevel,
-  Log,
-  setLogLevel,
-} from "#/logger";
+export { clearStoredLogLevel, getLogLevel, Log, setLogLevel } from "#/logger";
 // Types
 export type {
   CreateTokenResponse,

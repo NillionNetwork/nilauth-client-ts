@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NilauthClient } from "#/client";
 import { NilauthUnreachable } from "#/errors";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock ky - keep HTTPError real for instanceof checks
 vi.mock("ky", async (importOriginal) => {
@@ -16,10 +16,9 @@ import ky from "ky";
 const mockedKy = ky as unknown as ReturnType<typeof vi.fn>;
 
 // Valid ed25519 public key (32 bytes hex = 64 chars)
-const validPublicKey =
-  "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29";
+const validPublicKey = "3b6a27bcceb6a42d62a3a8d02a6f0d73653215771de243a63ac048a18b59da29";
 
-function mockJsonResponse(data: unknown) {
+function mockJsonResponse(data: unknown): Response {
   return {
     headers: new Headers({ "content-type": "application/json" }),
     json: async () => data,
@@ -27,7 +26,7 @@ function mockJsonResponse(data: unknown) {
   } as unknown as Response;
 }
 
-function mockTextResponse(data: string) {
+function mockTextResponse(data: string): Response {
   return {
     headers: new Headers({ "content-type": "text/plain" }),
     json: async () => {
@@ -37,7 +36,7 @@ function mockTextResponse(data: string) {
   } as unknown as Response;
 }
 
-function mockAboutResponse() {
+function mockAboutResponse(): Response {
   return mockJsonResponse({
     started: "2024-01-15T08:00:00Z",
     public_key: validPublicKey,
@@ -72,17 +71,13 @@ describe("NilauthClient", () => {
     it("throws NilauthUnreachable when service is down", async () => {
       mockedKy.mockRejectedValueOnce(new Error("ECONNREFUSED"));
 
-      await expect(NilauthClient.create({ baseUrl, chainId })).rejects.toThrow(
-        NilauthUnreachable,
-      );
+      await expect(NilauthClient.create({ baseUrl, chainId })).rejects.toThrow(NilauthUnreachable);
     });
   });
 
   describe("health", () => {
     it("returns OK on healthy service", async () => {
-      mockedKy
-        .mockResolvedValueOnce(mockAboutResponse())
-        .mockResolvedValueOnce(mockTextResponse("OK"));
+      mockedKy.mockResolvedValueOnce(mockAboutResponse()).mockResolvedValueOnce(mockTextResponse("OK"));
 
       const client = await NilauthClient.create({ baseUrl, chainId });
       const health = await client.health();
@@ -100,9 +95,7 @@ describe("NilauthClient", () => {
 
   describe("subscriptionCost", () => {
     it("returns cost for blind module", async () => {
-      mockedKy
-        .mockResolvedValueOnce(mockAboutResponse())
-        .mockResolvedValueOnce(mockJsonResponse({ cost_unils: 1000 }));
+      mockedKy.mockResolvedValueOnce(mockAboutResponse()).mockResolvedValueOnce(mockJsonResponse({ cost_unils: 1000 }));
 
       const client = await NilauthClient.create({ baseUrl, chainId });
       const cost = await client.subscriptionCost("nildb");
@@ -113,15 +106,11 @@ describe("NilauthClient", () => {
 
   describe("error handling", () => {
     it("throws NilauthUnreachable on network error", async () => {
-      mockedKy
-        .mockResolvedValueOnce(mockAboutResponse())
-        .mockRejectedValueOnce(new Error("Network error"));
+      mockedKy.mockResolvedValueOnce(mockAboutResponse()).mockRejectedValueOnce(new Error("Network error"));
 
       const client = await NilauthClient.create({ baseUrl, chainId });
 
-      await expect(client.subscriptionCost("nildb")).rejects.toThrow(
-        NilauthUnreachable,
-      );
+      await expect(client.subscriptionCost("nildb")).rejects.toThrow(NilauthUnreachable);
     });
   });
 });

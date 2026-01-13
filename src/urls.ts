@@ -15,8 +15,7 @@ export const NilauthUrl = {
     findRevocations: (base: string) => `${base}/api/v1/revocations/lookup`,
   },
   payments: {
-    cost: (base: string, blindModule: BlindModule) =>
-      `${base}/api/v1/payments/cost?blind_module=${blindModule}`,
+    cost: (base: string, blindModule: BlindModule) => `${base}/api/v1/payments/cost?blind_module=${blindModule}`,
     validate: (base: string) => `${base}/api/v1/payments/validate`,
   },
   subscriptions: {
